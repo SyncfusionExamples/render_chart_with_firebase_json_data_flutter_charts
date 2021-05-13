@@ -29,68 +29,50 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  late TooltipBehavior _tooltipBehavior;
-  late TrackballBehavior _trackballBehavior;
-  late Future<List<SalesData>> _future;
+  List<SalesData> chartData = [];
 
   @override
   void initState() {
-    _tooltipBehavior = TooltipBehavior(enable: true);
-    _trackballBehavior = TrackballBehavior(enable: true);
-    _future = loadSalesData();
+    loadSalesData();
     super.initState();
   }
 
-  Future<List<SalesData>> loadSalesData() async {
-    List<SalesData> chartData = [];
+  Future loadSalesData() async {
     String jsonString = await getJsonFromFirebaseRestAPI();
     final jsonResponse = json.decode(jsonString);
     setState(() {
-      for (Map<String, dynamic> i in jsonResponse) chartData.add(SalesData.fromJson(i));
+      for (Map<String, dynamic> i in jsonResponse)
+        chartData.add(SalesData.fromJson(i));
     });
-
-    return chartData;
   }
 
   Future<String> getJsonFromFirebaseRestAPI() async {
     var url = "https://flutterdemo-f6d47.firebaseio.com/chartSalesData.json";
     var response = await http.get(Uri.parse(url));
-
     return response.body;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: const Text('Syncfusion Flutter chart'),
-        ),
-        body: Center(
-          child: FutureBuilder<List<SalesData>>(
-              future: _future,
-              builder: (context, snapshot) {
-                if (snapshot.data != null) {
-                  print('data');
-                  return SfCartesianChart(
-                      primaryXAxis: CategoryAxis(),
-                      // Chart title
-                      title: ChartTitle(text: 'Half yearly sales analysis'),
-                      // Enable legend
-                      legend: Legend(isVisible: true),
-                      // Enable tooltip
-                      tooltipBehavior: _tooltipBehavior,
-                      trackballBehavior: _trackballBehavior,
-                      series: <ChartSeries<SalesData, String>>[
-                        LineSeries<SalesData, String>(
-                            dataSource: snapshot.data!,
-                            xValueMapper: (SalesData sales, _) => sales.month,
-                            yValueMapper: (SalesData sales, _) => sales.sales,
-                            // Enable data label
-                            dataLabelSettings:
-                                DataLabelSettings(isVisible: true))
-                      ]);
-                }
-                return Card(
+      appBar: AppBar(
+        title: const Text('Syncfusion Flutter chart'),
+      ),
+      body: Center(
+          child: chartData.isNotEmpty
+              ? SfCartesianChart(
+                  primaryXAxis: CategoryAxis(),
+                  // Chart title
+                  title: ChartTitle(text: 'Half yearly sales analysis'),
+                  series: <ChartSeries<SalesData, String>>[
+                      LineSeries<SalesData, String>(
+                          dataSource: chartData,
+                          xValueMapper: (SalesData sales, _) => sales.month,
+                          yValueMapper: (SalesData sales, _) => sales.sales,
+                          // Enable data label
+                          dataLabelSettings: DataLabelSettings(isVisible: true))
+                    ])
+              : Card(
                   elevation: 5.0,
                   child: Container(
                     height: 100,
@@ -115,9 +97,8 @@ class _MyHomePageState extends State<MyHomePage> {
                       ),
                     ),
                   ),
-                );
-              }),
-        ));
+                )),
+    );
   }
 }
 
