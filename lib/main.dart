@@ -47,8 +47,8 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<String> getJsonFromFirebaseRestAPI() async {
-    var url = "https://flutterdemo-f6d47.firebaseio.com/chartSalesData.json";
-    var response = await http.get(Uri.parse(url));
+    String url = "https://flutterdemo-f6d47.firebaseio.com/chartSalesData.json";
+    http.Response response = await http.get(Uri.parse(url));
     return response.body;
   }
 
