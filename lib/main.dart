@@ -37,13 +37,13 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future loadSalesData() async {
-    String jsonString = await getJsonFromFirebaseRestAPI();
+    String jsonString = await getJsonFromFirebase();
     final dynamic jsonResponse = json.decode(jsonString);
       for (Map<String, dynamic> i in jsonResponse)
         chartData.add(SalesData.fromJson(i));
   }
 
-  Future<String> getJsonFromFirebaseRestAPI() async {
+  Future<String> getJsonFromFirebase() async {
     String url = "https://flutterdemo-f6d47.firebaseio.com/chartSalesData.json";
     http.Response response = await http.get(Uri.parse(url));
     return response.body;
@@ -57,7 +57,7 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         body: Center(
           child: FutureBuilder(
-              future: getJsonFromFirebaseRestAPI(),
+              future: getJsonFromFirebase(),
               builder: (context, snapShot) {
                 loadSalesData();
                 if (snapShot.hasData) {
