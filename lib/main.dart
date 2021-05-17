@@ -33,20 +33,17 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void initState() {
-    loadSalesData();
     super.initState();
   }
 
   Future loadSalesData() async {
-    String jsonString = await getJsonFromFirebaseRestAPI();
-    final jsonResponse = json.decode(jsonString);
-    setState(() {
+    String jsonString = await getJsonFromFirebase();
+    final dynamic jsonResponse = json.decode(jsonString);
       for (Map<String, dynamic> i in jsonResponse)
         chartData.add(SalesData.fromJson(i));
-    });
   }
 
-  Future<String> getJsonFromFirebaseRestAPI() async {
+  Future<String> getJsonFromFirebase() async {
     String url = "https://flutterdemo-f6d47.firebaseio.com/chartSalesData.json";
     http.Response response = await http.get(Uri.parse(url));
     return response.body;
@@ -55,50 +52,58 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Syncfusion Flutter chart'),
-      ),
-      body: Center(
-          child: chartData.isNotEmpty
-              ? SfCartesianChart(
-                  primaryXAxis: CategoryAxis(),
-                  // Chart title
-                  title: ChartTitle(text: 'Half yearly sales analysis'),
-                  series: <ChartSeries<SalesData, String>>[
-                      LineSeries<SalesData, String>(
-                          dataSource: chartData,
-                          xValueMapper: (SalesData sales, _) => sales.month,
-                          yValueMapper: (SalesData sales, _) => sales.sales,
-                          // Enable data label
-                          dataLabelSettings: DataLabelSettings(isVisible: true))
-                    ])
-              : Card(
-                  elevation: 5.0,
-                  child: Container(
-                    height: 100,
-                    width: 400,
-                    child: Center(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          Text('Retriving Firebase data...',
-                              style: TextStyle(fontSize: 20.0)),
-                          Container(
-                            height: 40,
-                            width: 40,
-                            child: CircularProgressIndicator(
-                              semanticsLabel: 'Retriving Firebase data',
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                  Colors.blueAccent),
-                              backgroundColor: Colors.grey[300],
+        appBar: AppBar(
+          title: const Text('Syncfusion Flutter chart'),
+        ),
+        body: Center(
+          child: FutureBuilder(
+              future: getJsonFromFirebase(),
+              builder: (context, snapShot) {
+                loadSalesData();
+                if (snapShot.hasData) {
+                  return SfCartesianChart(
+                      primaryXAxis: CategoryAxis(),
+                      // Chart title
+                      title: ChartTitle(text: 'Half yearly sales analysis'),
+                      series: <ChartSeries<SalesData, String>>[
+                        LineSeries<SalesData, String>(
+                            dataSource: chartData,
+                            xValueMapper: (SalesData sales, _) => sales.month,
+                            yValueMapper: (SalesData sales, _) => sales.sales,
+                            // Enable data label
+                            dataLabelSettings:
+                                DataLabelSettings(isVisible: true))
+                      ]);
+                } else {
+                  return Card(
+                    elevation: 5.0,
+                    child: Container(
+                      height: 100,
+                      width: 400,
+                      child: Center(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            Text('Retriving Firebase data...',
+                                style: TextStyle(fontSize: 20.0)),
+                            Container(
+                              height: 40,
+                              width: 40,
+                              child: CircularProgressIndicator(
+                                semanticsLabel: 'Retriving Firebase data',
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.blueAccent),
+                                backgroundColor: Colors.grey[300],
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                )),
-    );
+                  );
+                }
+              }),
+        ));
   }
 }
 
