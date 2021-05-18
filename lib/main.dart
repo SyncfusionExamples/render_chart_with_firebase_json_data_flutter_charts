@@ -33,14 +33,15 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void initState() {
+    loadSalesData();
     super.initState();
   }
 
   Future loadSalesData() async {
-    String jsonString = await getJsonFromFirebase();
+    final String jsonString = await getJsonFromFirebase();
     final dynamic jsonResponse = json.decode(jsonString);
-      for (Map<String, dynamic> i in jsonResponse)
-        chartData.add(SalesData.fromJson(i));
+    for (Map<String, dynamic> i in jsonResponse)
+      chartData.add(SalesData.fromJson(i));
   }
 
   Future<String> getJsonFromFirebase() async {
@@ -59,7 +60,6 @@ class _MyHomePageState extends State<MyHomePage> {
           child: FutureBuilder(
               future: getJsonFromFirebase(),
               builder: (context, snapShot) {
-                loadSalesData();
                 if (snapShot.hasData) {
                   return SfCartesianChart(
                       primaryXAxis: CategoryAxis(),
