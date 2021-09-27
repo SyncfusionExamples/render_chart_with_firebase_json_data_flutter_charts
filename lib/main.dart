@@ -1,14 +1,11 @@
 import 'dart:convert';
-import 'dart:async' show Future;
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show rootBundle;
+import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
-import 'package:syncfusion_flutter_core/core.dart';
+import 'package:http/http.dart' as http;
 
 void main() {
-  // Register your license here
-  SyncfusionLicense.registerLicense('ADD YOUR LICENSE KEY HERE');
   return runApp(ChartApp());
 }
 
@@ -25,7 +22,7 @@ class ChartApp extends StatelessWidget {
 
 class MyHomePage extends StatefulWidget {
   // ignore: prefer_const_constructors_in_immutables
-  MyHomePage({Key key}) : super(key: key);
+  MyHomePage({Key? key}) : super(key: key);
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
@@ -34,24 +31,23 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   List<SalesData> chartData = [];
 
-  Future<String> _loadSalesDataAsset() async {
-    return await rootBundle.loadString('assets/data.json');
+  @override
+  void initState() {
+    loadSalesData();
+    super.initState();
   }
 
   Future loadSalesData() async {
-    String jsonString = await _loadSalesDataAsset();
-    final jsonResponse = json.decode(jsonString);
-    setState(() {
-      for(Map i in jsonResponse) {
-        chartData.add(SalesData.fromJson(i));
-      }
-    });
+    final String jsonString = await getJsonFromFirebase();
+    final dynamic jsonResponse = json.decode(jsonString);
+    for (Map<String, dynamic> i in jsonResponse)
+      chartData.add(SalesData.fromJson(i));
   }
-  
-  @override
-  void initState() {
-    super.initState();
-    loadSalesData();
+
+  Future<String> getJsonFromFirebase() async {
+    String url = "https://flutterdemo-f6d47.firebaseio.com/chartSalesData.json";
+    http.Response response = await http.get(Uri.parse(url));
+    return response.body;
   }
 
   @override
@@ -60,35 +56,67 @@ class _MyHomePageState extends State<MyHomePage> {
         appBar: AppBar(
           title: const Text('Syncfusion Flutter chart'),
         ),
-        body: SfCartesianChart(
-            primaryXAxis: CategoryAxis(),
-            // Chart title
-            title: ChartTitle(text: 'Half yearly sales analysis'),
-            // Enable legend
-            legend: Legend(isVisible: true),
-            // Enable tooltip
-            tooltipBehavior: TooltipBehavior(enable: true),
-            series: <ChartSeries<SalesData, String>>[
-              LineSeries<SalesData, String>(
-                  dataSource: chartData,
-                  xValueMapper: (SalesData sales, _) => sales.year,
-                  yValueMapper: (SalesData sales, _) => sales.sales,
-                  // Enable data label
-                  dataLabelSettings: DataLabelSettings(isVisible: true))
-            ]));
+        body: Center(
+          child: FutureBuilder(
+              future: getJsonFromFirebase(),
+              builder: (context, snapShot) {
+                if (snapShot.hasData) {
+                  return SfCartesianChart(
+                      primaryXAxis: CategoryAxis(),
+                      // Chart title
+                      title: ChartTitle(text: 'Half yearly sales analysis'),
+                      series: <ChartSeries<SalesData, String>>[
+                        LineSeries<SalesData, String>(
+                            dataSource: chartData,
+                            xValueMapper: (SalesData sales, _) => sales.month,
+                            yValueMapper: (SalesData sales, _) => sales.sales,
+                            // Enable data label
+                            dataLabelSettings:
+                                DataLabelSettings(isVisible: true))
+                      ]);
+                } else {
+                  return Card(
+                    elevation: 5.0,
+                    child: Container(
+                      height: 100,
+                      width: 400,
+                      child: Center(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            Text('Retriving Firebase data...',
+                                style: TextStyle(fontSize: 20.0)),
+                            Container(
+                              height: 40,
+                              width: 40,
+                              child: CircularProgressIndicator(
+                                semanticsLabel: 'Retriving Firebase data',
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.blueAccent),
+                                backgroundColor: Colors.grey[300],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                }
+              }),
+        ));
   }
 }
 
 class SalesData {
-  SalesData(this.year, this.sales);
+  SalesData(this.month, this.sales);
 
-  final String year;
-  final double sales;
+  final String month;
+  final int sales;
 
   factory SalesData.fromJson(Map<String, dynamic> parsedJson) {
     return SalesData(
-      parsedJson['year'].toString(),
-      parsedJson['sales'] as double,
+      parsedJson['month'].toString(),
+      parsedJson['sales'],
     );
   }
 }
