@@ -1,4 +1,4 @@
-name: jsonsample
+name: firebase_chartdata
 description: A new Flutter project.
 
 # The following line prevents the package from being accidentally published to
@@ -18,17 +18,20 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.7.0 <3.0.0"
+  sdk: ">=2.12.0 <3.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
+  
+  http: ^0.13.0
+  firebase_database: ^3.1.6
+  syncfusion_flutter_charts: '19.1.55+1'
 
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^0.1.3
-  syncfusion_flutter_charts: ^18.1.59
 
 dev_dependencies:
   flutter_test:
@@ -46,8 +49,9 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  assets:
-    - assets/data.json
+  # assets:
+  #   - images/a_dot_burr.jpeg
+  #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
