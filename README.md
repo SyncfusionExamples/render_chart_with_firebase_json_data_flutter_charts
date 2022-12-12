@@ -1,16 +1,17 @@
-# jsonsample
+# Render the Flutter chart using JSON data stored in Firebase database
 
-A new Flutter project.
+Using the Firebase REST API and HTTP client, you can retrieve the JSON data from the Firebase database and also with the help of the deserialization concept (parsing of raw JSON data to dart object model) you can convert the retrieved JSON data to chart data list for the Flutter Cartesian chart.
 
-## Getting Started
+The Firebase Realtime Database is a cloud-hosted database. A Data is stored as JSON and synchronized in real-time to every connected client. You can use any Firebase Realtime Database URL as a REST endpoint and send requests from the HTTP client, in order to access the JSON data.
 
-This project is a starting point for a Flutter application.
+## Requirements to run the demo
+* [VS Code](https://code.visualstudio.com/download)
+* [Flutter SDK v2.0.0+](https://flutter.dev/docs/development/tools/sdk/overview)
+* [For more development tools](https://flutter.dev/docs/development/tools/devtools/overview)
 
-A few resources to get you started if this is your first Flutter project:
+## How to run this application
+To run this application, you need to first clone or download the ‘render chart with firebase json data flutter chart’ repository and open it in your preferred IDE. Then, build and run your project to view the output.
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Further help
+For more help, check the [Syncfusion Flutter documentation](https://help.syncfusion.com/flutter/introduction/overview), or
+ [Flutter documentation](https://flutter.dev/docs/get-started/install).
