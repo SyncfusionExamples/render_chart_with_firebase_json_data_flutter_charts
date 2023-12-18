@@ -64,7 +64,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       primaryXAxis: CategoryAxis(),
                       // Chart title
                       title: ChartTitle(text: 'Half yearly sales analysis'),
-                      series: <ChartSeries<SalesData, String>>[
+                      series: <LineSeries<SalesData, String>>[
                         LineSeries<SalesData, String>(
                             dataSource: chartData,
                             xValueMapper: (SalesData sales, _) => sales.month,
